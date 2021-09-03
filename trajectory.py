@@ -15,16 +15,16 @@ def plotting_image(image, R, *args, **kwargs):
     name = namestr(image)[0:3]
     cor_step_x = len(image[0]) * 16 / (2*R)
     cor_step_y = len(image) * 16 / (2*R)
-    fig = plt.figure() 
+    fig = plt.figure()
     ax = fig.add_subplot(111)
-    
+
     extent = [ -cor_step_x, cor_step_x, -cor_step_y, cor_step_y]
 
-    imgplot = plt.imshow(image, extent=extent)    	
+    imgplot = plt.imshow(image, extent=extent)
     #ax.grid(True)
     #imgplot.set_cmap('nipy_spectral')
     #plt.colorbar.ColorbarBase(cmap='nipy_spectral')
-    plt.colorbar()
+    #plt.colorbar()
     #plt.savefig('./The_model_{}r.png'.format(name), transparent=False, dpi=500, bbox_inches="tight")
     plt.show()
 #--------------------------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ perc_a = 20
 
 st = 10
 
-t1 = time.time_ns() 
+t1 = time.time_ns()
 
 #--------------------------------------------------------------------------------------------------
 
@@ -73,7 +73,7 @@ traj = np.arange(0, im_size_sun - im_size_ant, st)
 result = np.zeros_like(traj)
 num = 0
 
-for k in traj:    
+for k in traj:
     res = 0
     for i in range(im_size_ant):
         for j in range(im_size_ant):
@@ -95,14 +95,15 @@ for k in traj:
     num += 1
 '''
 
-t2 = time.time_ns() 
+t2 = time.time_ns()
 print( (t2 - t1) / 10**9)
 
 result = result / np.max(result)
-fig = plt.figure() 
+fig = plt.figure()
 ax = fig.add_subplot(111)
 plt.plot(result)
 ax.set_title('"Time" profile, {}% of Sun\'s R'.format(perc_a), size = 25)
+print('he')
 plt.show()
 
 plotting_image(sun_matrix, R_sun)

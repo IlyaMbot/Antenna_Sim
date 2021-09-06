@@ -16,10 +16,10 @@ hsize = int(size / 2)
 R = 5
 D = 20
 #coords = np.array([[0,0],[1,0],[-1,0],[-2,0],[2,0],[0,1],[0,2],[0,3],[0,4]])
-#coords = np.array([[0,0]])
-coords = np.array([[0,0],[1,0],[-1,0],[0,1],[0,-1]])
+#coords = np.array([[0,0],[0,1.1],[0.9,-0.1],[0,2.1],[2,0.1]])
+#coords = np.array([[0,0],[1,0],[-1,0],[0,1],[0,-1]])
 
-coords = coords * 20
+coords = coords * D
 print(coords)
 
 for cor in coords:
@@ -47,5 +47,5 @@ plt.subplot(122)
 imgplot = plt.imshow(trans, cmap = 'hot')
 
 plt.tight_layout()
-plt.savefig('./RTelescope_model_{}ant.png'.format(len(coords)), transparent=False, dpi=500, bbox_inches="tight")
-plt.show()
+plt.savefig('./RTelescope_model_{}ant_{}wplus.png'.format(len(coords), D), transparent=False, dpi=500, bbox_inches="tight")
+#plt.show()

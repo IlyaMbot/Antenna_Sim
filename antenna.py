@@ -55,7 +55,6 @@ for i in range(size_ant):
         if( r < R ** 2 ):
             antenna[i][j] = 1 - (np.sqrt(r)/R)
 
-print(jn_zeros(0,1))
 
 plotting_image(antenna,D, R)
 #plotting(antenna[hsize_ant])
@@ -67,6 +66,8 @@ freq = np.zeros_like(sfreq)
 
 for i in range(size_ant):
     for j in range(size_ant):
-        freq[i][j] = sfreq[i - hsize_ant][j - hsize_ant]
+        freq[i][j] = (sfreq[i - hsize_ant][j - hsize_ant])/sfreq.max()
 
-plotting_image(freq, D, R* np.pi)
+R0 = hsize_ant - int(np.argwhere(freq[hsize_ant][0 : hsize_ant] >= 0.5)[0])
+
+plotting_image(freq, 1, R0 )

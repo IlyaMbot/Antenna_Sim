@@ -5,19 +5,26 @@ from numpy.fft import fft2, ifft2, fftfreq
 
 
 #imgSunCol = mpimg.imread('Sunfond.png')
-imgSunCol = mpimg.imread('my.png')
+size = 101
+imgSun = np.zeros(shape = (size, size))
 
-
-size = len(imgSunCol)
+size = len(imgSun)
 hsize = int(size / 2)
 
-imgSun = []
-
+'''
 for row in imgSunCol:
 	ImRow = []
 	for pixel in row:
 		ImRow.append(pixel[0] + pixel[1] + pixel[2])	
 	imgSun.append(ImRow)
+'''
+
+R = 10
+for i in range(size):
+    for j in range(size):
+        imgSun[i][j] = np.exp(-( (i - hsize)**2 + (j - hsize)**2) /(np.pi * R))
+
+
 
 sfreq = abs(fft2(imgSun).real)
 trans = np.zeros_like(sfreq)
@@ -48,11 +55,16 @@ for cor in coords:
 
 fig = plt.figure()
 
+extent = [ -hsize, hsize, -hsize, hsize]
+
 plt.subplot(121)
-imgplot = plt.imshow(imgSun, cmap = 'hot')
+imgplot = plt.imshow(imgSun, cmap = 'hot', extent=extent)
+plt.grid(True)
 plt.subplot(122)
-imgplot = plt.imshow(trans, cmap = 'seismic')
+imgplot = plt.imshow(trans, cmap = 'hot', extent=extent)
+plt.grid(True)
 
 plt.tight_layout()
 #plt.savefig('./RTelescope_model_{}ant_{}wplus.png'.format(len(coords), D), transparent=False, dpi=500, bbox_inches="tight")
+
 plt.show()

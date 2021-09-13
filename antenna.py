@@ -1,7 +1,6 @@
 import numpy as np
 from numpy.fft import fft2, ifft2, fftfreq
 import matplotlib.pyplot as plt
-from scipy.special import jn_zeros
 
 
 #--------------------------------------------------------------------------------------------------
@@ -33,19 +32,18 @@ def plotting_image(image, D, R):
     plt.show()
 #--------------------------------------------------------------------------------------------------
 
-pxSize = 0.01 # 1px = 1 cm
+pxSize = 0.001 # 1px = 1 cm
 
-lsize = 2 ** 7 # in pxs
+lsize = 2 ** 8 # in pxs
 c = 3 * 10 ** 8 # in m/s
 D = 3 # in m 
-freq_base = 3 * 10**9 # in Hz
+freq_base = 3 * 10 ** 9 # in Hz
 
 
-antenna = np.zeros(shape = (lsize, lsize))
+antenna = np.zeros(shape = (lsize, lsize), dtype=np.float64)
 size_ant = len(antenna)
 hsize_ant = int(size_ant / 2)
-R = c / (freq_base * D * pxSize) 
-print(R)
+R = c / (freq_base * D * pxSize)
 
 #--------------------------------------------------------------------------------------------------
 

@@ -2,66 +2,110 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import time
+from numpy.fft import fft2, ifft2, fftshift
 
 
 #--------------------------------------------------------------------------------------------------
+
 def namestr(obj):
+    # Returns name os the variable
     namespace = globals()
     res = [name for name in namespace if namespace[name] is obj]
     return(res[0])
 
-def plotting_image(image, R, *args, **kwargs):
+
+def plotting(x, y = None):
+    # Simply plots a graph
+
+    fig = plt.figure() 
+    ax = fig.add_subplot(111)
+    ax.set_title("Flux-agnle dependancy", size = 20)
+    try:
+    	plt.plot(x,y)
+    except:
+    	print("xdata != ydata")
+    	plt.plot(x)
+    ax.set_xlabel("Angle, [deg]", size = 16)
+    ax.set_ylabel("Intencity", size = 16)
+    plt.show()
+    
+
+def plotting_image(image, R = 1 , D = 1, save = False, grid_on = False):
+    '''
+    Plots an image and normalize it on D and R,
+    by default R = D = 1 and shows image size in pixels
+    '''
 
     name = namestr(image)[0:3]
-    cor_step_x = len(image[0]) * 16 / (2*R)
-    cor_step_y = len(image) * 16 / (2*R)
-    fig = plt.figure()
+    cor_step_x = (len(image[0]) * D) / (R * 2)
+    cor_step_y = (len(image) * D) / (R * 2)
+    fig = plt.figure() 
     ax = fig.add_subplot(111)
-
+    print("xy ==",cor_step_x, cor_step_y)
     extent = [ -cor_step_x, cor_step_x, -cor_step_y, cor_step_y]
 
-    imgplot = plt.imshow(image, extent=extent)
-    #ax.grid(True)
-    #imgplot.set_cmap('nipy_spectral')
-    #plt.colorbar.ColorbarBase(cmap='nipy_spectral')
-    #plt.colorbar()
-    #plt.savefig('./The_model_{}r.png'.format(name), transparent=False, dpi=500, bbox_inches="tight")
+    imgplot = plt.imshow(image, cmap = 'hot', extent=extent)    
+
+    plt.colorbar()
+    ax.set_ylabel("Angle, [deg]", size = 16)
+    ax.set_xlabel("Angle, [deg]", size = 16)
+    if(grid_on == True):
+    	ax.grid(True)
+    
+    if(save == True):
+        plt.savefig('./The_model_{}r.png'.format(name), transparent=False, dpi=500, bbox_inches="tight")
+        
     plt.show()
+    
 #--------------------------------------------------------------------------------------------------
 
-lsize = 2**8
-lsize_s = 3 * lsize
+pxSize = 0.01 # 1px = 1 cm
+lsize = 2 ** 8
 
-perc = 20
-perc_a = 20
+c = 3 * 10 ** 8 # in m/s
+D = 3 # in m 
+freq_base = 3 * 10 ** 9 # in Hz
 
-st = 10
+st = 1
 
 t1 = time.time_ns()
 
 #--------------------------------------------------------------------------------------------------
+# making antenna's visibility function matrix
 
-sun_matrix = np.zeros(shape = (lsize_s, lsize_s))
+antenna = np.zeros(shape = (lsize, lsize), dtype=np.float64)
+size_ant = len(antenna)
+hsize_ant = int(size_ant / 2)
+R = c / (freq_base * D * pxSize)
+
+for i in range(size_ant):
+    for j in range(size_ant):
+        r = (i - hsize_ant) **2 + (j - hsize_ant)**2
+        if( r < R ** 2 ):
+            antenna[i][j] = 1 - (np.sqrt(r)/R)
+
+sfreq = abs(fft2(antenna, s = [2**8, 2**8]).real)
+sfreq = fftshift(sfreq)
+sfreq = sfreq / np.max(sfreq)
+
+size_ant = len(sfreq)
+hsize_ant = int(size_ant / 2)
+
+
+R0 = hsize_ant - int(np.argwhere(sfreq[hsize_ant][0 : hsize_ant] >= 0.5)[0])
+
+
+#--------------------------------------------------------------------------------------------------
+# The Sun's matrix 
+
+sun_matrix = np.zeros(shape = (size_ant * 3, size_ant * 3), dtype=np.float64)
 im_size_sun = len(sun_matrix[0])
 im_hsize_sun = int(im_size_sun / 2)
-R_sun = (perc * im_size_sun / 200)
-
-ant_matrix = np.zeros(shape = (lsize, lsize))
-im_size_ant = len(ant_matrix)
-im_hsize_ant = int(im_size_ant / 2)
-R = perc_a * R_sun / 100
-
-#--------------------------------------------------------------------------------------------------
-
-for i in range(im_size_ant):
-    for j in range(im_size_ant):
-        ant_matrix[i][j] = abs( np.sinc( np.arctan( ( (i - lsize/2) **2 + (j - lsize/2)**2 ) / R**2 )) )
-
-#--------------------------------------------------------------------------------------------------
+R_sun = (R0 * 0.53) # Sun's angular diameter
 
 for i in range(im_size_sun):
     for j in range(im_size_sun):
-        r = (i - lsize_s / 2) **2 + (j - lsize_s / 2)**2
+        r = (i - im_hsize_sun) **2 + (j - im_hsize_sun)**2
         if( r < R_sun**2 ):
             #sun_matrix[i][j] = 1
             sun_matrix[i][j] = np.cos(r * np.pi / (2 * R_sun**2))
@@ -69,42 +113,27 @@ for i in range(im_size_sun):
 #--------------------------------------------------------------------------------------------------
 
 
-traj = np.arange(0, im_size_sun - im_size_ant, st)
+traj = np.arange(im_hsize_sun - hsize_ant, im_hsize_sun, st)
+print(len(traj))
 result = np.zeros_like(traj)
 num = 0
 
 for k in traj:
     res = 0
-    for i in range(im_size_ant):
-        for j in range(im_size_ant):
-            res += sun_matrix[ i + im_hsize_sun ][ j + k ] * ant_matrix[i][j]
+    for i in range(size_ant):
+        for j in range(size_ant):
+            res += sun_matrix[ i + int(im_hsize_sun/2) ][ j + k ] * sfreq[i][j]
     result[num] += res
     num += 1
 
-'''
-CUT = sun_matrix[0:512][0 : im_size_ant][0:512]
-print(len(CUT), len(CUT[0]))
-print(CUT)
-print((im_hsize_sun - im_hsize_ant), (im_hsize_sun + im_hsize_ant), im_size_ant)
-plotting_image(CUT, R_sun)
-
-for k in traj:
-    res_mat = sun_matrix[im_hsize_sun - im_hsize_ant : im_hsize_sun + im_hsize_ant][0 + k : im_size_ant + k ] * ant_matrix
-    #print(im_size_ant + k )
-    result[num] = np.sum(res_mat)
-    num += 1
-'''
+traj = (traj - traj[0]) / (R0)
 
 t2 = time.time_ns()
 print( (t2 - t1) / 10**9)
 
 result = result / np.max(result)
-fig = plt.figure()
-ax = fig.add_subplot(111)
-plt.plot(result)
-ax.set_title('"Time" profile, {}% of Sun\'s R'.format(perc_a), size = 25)
-print('he')
-plt.show()
 
-plotting_image(sun_matrix, R_sun)
-plotting_image(ant_matrix, R_sun)
+plotting_image(antenna, R = R, grid_on = True)
+plotting_image(sfreq, R = R0, grid_on = True)
+plotting_image(sun_matrix, R = R0, grid_on = True)
+plotting(traj, result)

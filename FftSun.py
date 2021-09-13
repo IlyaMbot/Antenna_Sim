@@ -5,7 +5,7 @@ from numpy.fft import fft2, ifft2, fftfreq
 
 
 #imgSunCol = mpimg.imread('Sunfond.png')
-size = 101
+size = 1000
 imgSun = np.zeros(shape = (size, size))
 
 size = len(imgSun)

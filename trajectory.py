@@ -30,7 +30,7 @@ def plotting(x, y = None):
     plt.show()
     
 
-def plotting_image(image, R = 1 , D = 1, save = False, grid_on = False):
+def plotting_image(image, R = 1 , D = 1, save = False, grid_on = False, title = ''):
     '''
     Plots an image and normalize it on D and R,
     by default R = D = 1 and shows image size in pixels
@@ -41,19 +41,20 @@ def plotting_image(image, R = 1 , D = 1, save = False, grid_on = False):
     cor_step_y = (len(image) * D) / (R * 2)
     fig = plt.figure() 
     ax = fig.add_subplot(111)
-    print("xy ==",cor_step_x, cor_step_y)
+    #print("xy ==",cor_step_x, cor_step_y)
     extent = [ -cor_step_x, cor_step_x, -cor_step_y, cor_step_y]
 
-    imgplot = plt.imshow(image, cmap = 'hot', extent=extent)    
+    imgplot = plt.imshow(image, cmap = 'hot', extent = extent)    
 
     plt.colorbar()
+    plt.title(title)
     ax.set_ylabel("Angle, [deg]", size = 16)
     ax.set_xlabel("Angle, [deg]", size = 16)
     if(grid_on == True):
     	ax.grid(True)
     
     if(save == True):
-        plt.savefig('./The_model_{}r.png'.format(name), transparent=False, dpi=500, bbox_inches="tight")
+        plt.savefig(f'./The_model_{name}r.png', transparent = False, dpi = 500, bbox_inches = "tight")
         
     plt.show()
     
@@ -80,19 +81,19 @@ R = c / (freq_base * D * pxSize)
 
 for i in range(size_ant):
     for j in range(size_ant):
-        r = (i - hsize_ant) **2 + (j - hsize_ant)**2
+        r = (i - hsize_ant) ** 2 + (j - hsize_ant) ** 2
         if( r < R ** 2 ):
             antenna[i][j] = 1 - (np.sqrt(r)/R)
 
-sfreq = abs(fft2(antenna, s = [2**8, 2**8]).real)
-sfreq = fftshift(sfreq)
-sfreq = sfreq / np.max(sfreq)
+visibilityf = abs(fft2(antenna, s = [2 ** 8, 2 ** 8]).real)
+visibilityf = fftshift(visibilityf)
+visibilityf = visibilityf / np.max(visibilityf)
 
-size_ant = len(sfreq)
+size_ant = len(visibilityf)
 hsize_ant = int(size_ant / 2)
 
 
-R0 = hsize_ant - int(np.argwhere(sfreq[hsize_ant][0 : hsize_ant] >= 0.5)[0])
+R0 = (hsize_ant - int(np.argwhere(visibilityf[hsize_ant][0 : hsize_ant] >= 0.5)[0])) * 2
 
 
 #--------------------------------------------------------------------------------------------------
@@ -105,16 +106,15 @@ R_sun = (R0 * 0.53) # Sun's angular diameter
 
 for i in range(im_size_sun):
     for j in range(im_size_sun):
-        r = (i - im_hsize_sun) **2 + (j - im_hsize_sun)**2
-        if( r < R_sun**2 ):
+        r = (i - im_hsize_sun) ** 2 + (j - im_hsize_sun) ** 2
+        if( r < R_sun ** 2 ):
             #sun_matrix[i][j] = 1
-            sun_matrix[i][j] = np.cos(r * np.pi / (2 * R_sun**2))
+            sun_matrix[i][j] = 0.5 + 0.5 * np.sin(r * np.pi / (2 * R_sun ** 2))
 
 #--------------------------------------------------------------------------------------------------
 
 
 traj = np.arange(im_hsize_sun - hsize_ant, im_hsize_sun, st)
-print(len(traj))
 result = np.zeros_like(traj)
 num = 0
 
@@ -122,18 +122,18 @@ for k in traj:
     res = 0
     for i in range(size_ant):
         for j in range(size_ant):
-            res += sun_matrix[ i + int(im_hsize_sun/2) ][ j + k ] * sfreq[i][j]
+            res += sun_matrix[ i + int(im_hsize_sun / 2) ][ j + k ] * visibilityf[i][j]
     result[num] += res
     num += 1
 
 traj = (traj - traj[0]) / (R0)
 
 t2 = time.time_ns()
-print( (t2 - t1) / 10**9)
+print("time =", (t2 - t1) / 10 ** 9)
 
 result = result / np.max(result)
 
-plotting_image(antenna, R = R, grid_on = True)
-plotting_image(sfreq, R = R0, grid_on = True)
-plotting_image(sun_matrix, R = R0, grid_on = True)
+plotting_image(antenna, R = R, grid_on = True, title = "Antenna corr")
+plotting_image(visibilityf, R = R0, grid_on = True, title = "Visibility func")
+plotting_image(sun_matrix, R = R0, grid_on = True, title = "The Sun")
 plotting(traj, result)

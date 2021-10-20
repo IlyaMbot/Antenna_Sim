@@ -42,8 +42,10 @@ for ant in ants[:20]:
     plt.plot(time, ant, label = f"antenna #{i}")
 #    plt.scatter(time[:-1], dant, label = f"antenna #{i}")
     i += 1
+
+textsize = 16
     
-plt.title(f"RPC {date}, freq = {freq}")
+plt.title(f"RPC+LPC {date}, freq = {freq} MHz", size = textsize)
 #plt.legend()
 plt.show()
 
@@ -54,7 +56,7 @@ for key in f[0].header:
     print(f"{key} - {f[0].header[key]}")
 print("***")
 '''
-
+'''
 #freqs = [data[i][0] for i in range(len(data))]
 
 data = f[1].data[0]["AMP_RCP"]
@@ -63,4 +65,4 @@ freq = data["FREQUENCY"]
 
 ramps = data["AMP_RCP"]
 lamps = data["AMP_LCP"]
-
+'''

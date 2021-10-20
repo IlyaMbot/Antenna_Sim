@@ -44,7 +44,7 @@ def plotting_image(image, R = 1 , D = 1, save = False, grid_on = False, title = 
     #print("xy ==",cor_step_x, cor_step_y)
     extent = [ -cor_step_x, cor_step_x, -cor_step_y, cor_step_y]
 
-    imgplot = plt.imshow(image, cmap = 'hot', extent = extent)    
+    plt.imshow(image, cmap = 'hot', extent = extent)    
 
     plt.colorbar()
     plt.title(title)
@@ -93,7 +93,7 @@ size_ant = len(visibilityf)
 hsize_ant = int(size_ant / 2)
 
 
-R0 = (hsize_ant - int(np.argwhere(visibilityf[hsize_ant][0 : hsize_ant] >= 0.5)[0])) * 2
+R0 = (hsize_ant - int(np.argwhere(visibilityf[hsize_ant][0 : hsize_ant] >= 0.5)[0]))
 
 
 #--------------------------------------------------------------------------------------------------
@@ -108,16 +108,25 @@ for i in range(im_size_sun):
     for j in range(im_size_sun):
         r = (i - im_hsize_sun) ** 2 + (j - im_hsize_sun) ** 2
         if( r < R_sun ** 2 ):
-            #sun_matrix[i][j] = 1
-            sun_matrix[i][j] = 0.5 + 0.5 * np.sin(r * np.pi / (2 * R_sun ** 2))
+            sun_matrix[i][j] = 1
+            #sun_matrix[i][j] = 0.5 + 0.5 * np.sin(r * np.pi / (2 * R_sun ** 2))
 
 #--------------------------------------------------------------------------------------------------
 
 
 traj = np.arange(im_hsize_sun - hsize_ant, im_hsize_sun, st)
-result = np.zeros_like(traj)
-num = 0
 
+flux = []
+
+for k in range(len(traj)):
+    flux.append(np.sum( sun_matrix[int(im_hsize_sun / 2) + k : size_ant + int(im_hsize_sun / 2) + k, 0 : size_ant ] * visibilityf ))
+
+print(sun_matrix[int(im_hsize_sun / 2) + k : size_ant + int(im_hsize_sun / 2) + k, 0 : size_ant ] * visibilityf)
+traj = (traj - traj[0]) / (R0)
+
+print(flux)
+
+'''
 for k in traj:
     res = 0
     for i in range(size_ant):
@@ -127,13 +136,15 @@ for k in traj:
     num += 1
 
 traj = (traj - traj[0]) / (R0)
+'''
 
 t2 = time.time_ns()
 print("time =", (t2 - t1) / 10 ** 9)
-
+'''
 result = result / np.max(result)
 
 plotting_image(antenna, R = R, grid_on = True, title = "Antenna corr")
-plotting_image(visibilityf, R = R0, grid_on = True, title = "Visibility func")
+plotting_image(visibilityf, R = R0 * 2, grid_on = True, title = "Visibility func")
 plotting_image(sun_matrix, R = R0, grid_on = True, title = "The Sun")
 plotting(traj, result)
+'''

@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import time
-from numpy.fft import fft2, ifft2, fftshift
+from numpy.fft import fft2, fftshift
 
 
 #--------------------------------------------------------------------------------------------------
@@ -34,6 +34,8 @@ def plotting_image(image, R = 1 , D = 1, save = False, grid_on = False, title = 
     '''
     Plots an image and normalize it on D and R,
     by default R = D = 1 and shows image size in pixels
+    R - diameter of central object
+    D - antenna's diameter
     '''
 
     name = namestr(image)[0:3]
@@ -93,7 +95,7 @@ size_ant = len(visibilityf)
 hsize_ant = int(size_ant / 2)
 
 
-R0 = (hsize_ant - int(np.argwhere(visibilityf[hsize_ant][0 : hsize_ant] >= 0.5)[0]))
+R0 = 2 * (hsize_ant - int(np.argwhere(visibilityf[hsize_ant][0 : hsize_ant] >= 0.5)[0])) 
 
 
 #--------------------------------------------------------------------------------------------------
@@ -109,42 +111,26 @@ for i in range(im_size_sun):
         r = (i - im_hsize_sun) ** 2 + (j - im_hsize_sun) ** 2
         if( r < R_sun ** 2 ):
             sun_matrix[i][j] = 1
-            #sun_matrix[i][j] = 0.5 + 0.5 * np.sin(r * np.pi / (2 * R_sun ** 2))
+            #sun_matrix[i][j] = np.cos(r * np.pi / (2 * R_sun ** 2))
 
 #--------------------------------------------------------------------------------------------------
 
 
-traj = np.arange(im_hsize_sun - hsize_ant, im_hsize_sun, st)
+traj = np.arange(im_hsize_sun - hsize_ant, im_hsize_sun + hsize_ant, st)
 
 flux = []
 
 for k in range(len(traj)):
-    flux.append(np.sum( sun_matrix[int(im_hsize_sun / 2) + k : size_ant + int(im_hsize_sun / 2) + k, 0 : size_ant ] * visibilityf ))
-
-print(sun_matrix[int(im_hsize_sun / 2) + k : size_ant + int(im_hsize_sun / 2) + k, 0 : size_ant ] * visibilityf)
-traj = (traj - traj[0]) / (R0)
-
-print(flux)
-
-'''
-for k in traj:
-    res = 0
-    for i in range(size_ant):
-        for j in range(size_ant):
-            res += sun_matrix[ i + int(im_hsize_sun / 2) ][ j + k ] * visibilityf[i][j]
-    result[num] += res
-    num += 1
+    flux.append(np.sum( sun_matrix[ size_ant + k : 2 * size_ant + k, size_ant  : 2 * size_ant ] * visibilityf ))
 
 traj = (traj - traj[0]) / (R0)
-'''
 
 t2 = time.time_ns()
-print("time =", (t2 - t1) / 10 ** 9)
-'''
-result = result / np.max(result)
+print(f"time = {(t2 - t1) / 10 ** 9} s" )
+
+flux = flux / np.max(flux)
 
 plotting_image(antenna, R = R, grid_on = True, title = "Antenna corr")
-plotting_image(visibilityf, R = R0 * 2, grid_on = True, title = "Visibility func")
+plotting_image(visibilityf, R = R0 , grid_on = True, title = "Visibility func")
 plotting_image(sun_matrix, R = R0, grid_on = True, title = "The Sun")
-plotting(traj, result)
-'''
+plotting(traj, flux)

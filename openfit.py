@@ -4,10 +4,11 @@ from astropy.io import fits
 import glob, os
 
 
-filenames = glob.glob('/home/conpucter/GitHub/try/DataSRH/2021/07/*.fit')
+filenames = glob.glob('./data/20210801/*.fit')
 filenames = sorted(filenames, key=os.path.basename)
 
-date = filenames[0][-19:-11]
+date = filenames[0].split('/')[3][4:-11]
+print(date)
 
 #------------------------------------------------------------------------------
 
@@ -26,30 +27,32 @@ for filename in filenames:
     freq = f[1].data[0]["FREQUENCY"]
     time.append(f[1].data[0]["TIME"])
         
-    data = np.reshape(data, (20, 48))
+    data = np.reshape(data, (20, 128))
     for i in range(20):
         ants.append(data[i, :])
         
 
 ants = np.swapaxes(np.array(ants), 0, 1)
-
-time = np.reshape(np.array(time), (3760))
+time = np.reshape(np.array(time), ( len(filenames) * 20 ))
 
 i = 1
 for ant in ants[:20]:
-    #ant = ant / np.average(ant)
-    dant = abs(np.diff(ant))
-    plt.plot(time, ant, label = f"antenna #{i}")
-#    plt.scatter(time[:-1], dant, label = f"antenna #{i}")
+    # ant = ant / np.average(ant)
+    # ant = ant / np.max(ant)
+    # dant = np.diff(ant)
+    # plt.plot(time, ant, label = f"antenna #{i}")
+    # plt.plot(time[:-1], dant, label = f"antenna #{i}")
+    plt.scatter(time[:-2], dant, label = f"antenna #{i}")
     i += 1
 
 textsize = 16
     
 plt.title(f"RPC+LPC {date}, freq = {freq} MHz", size = textsize)
-#plt.legend()
+# plt.legend()
 plt.show()
 
 #------------------------------------------------------------------------------
+
 
 '''
 for key in f[0].header:

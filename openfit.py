@@ -4,7 +4,7 @@ from astropy.io import fits
 import glob, os
 
 
-filenames = glob.glob('./data/20210801/*.fit')
+filenames = glob.glob('/mnt/badary/SRH/SRH0306/20210603/*.fit')
 filenames = sorted(filenames, key=os.path.basename)
 
 date = filenames[0].split('/')[3][4:-11]

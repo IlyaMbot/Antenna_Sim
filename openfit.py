@@ -4,6 +4,10 @@ from astropy.io import fits
 import glob, os
 import time as t
 
+#functions---------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+
 # on server
 # filenames = glob.glob('/mnt/badary/SRH/SRH0306/20210603/*.fit')
 

@@ -14,17 +14,6 @@ for folder in folders[1:2]:
     filenames = sorted(filenames, key=os.path.basename)
 
 #------------------------------------------------------------------------------
-    '''
-    filename = filenames[0]
-    f = fits.open(filename)
-    f.verify('silentfix')
-        
-    for key in f[0].header:
-        print(f"{key} - {f[0].header[key]}")
-    print("***")
-    print(f[0].header["date-OBS"])
-    '''
-#------------------------------------------------------------------------------
 
     ramps = []
     lamps = []

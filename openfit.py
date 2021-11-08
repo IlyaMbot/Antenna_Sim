@@ -2,14 +2,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
 import glob, os
+import time as t
+
+# on server
+# filenames = glob.glob('/mnt/badary/SRH/SRH0306/20210603/*.fit')
+
+# on PC
+filenames = glob.glob('./dataold/20210603/*.fit')
 
 
-filenames = glob.glob('/mnt/badary/SRH/SRH0306/20210603/*.fit')
 filenames = sorted(filenames, key=os.path.basename)
 
 date = filenames[0].split('/')[3][4:-11]
 print(date)
-
+t1 = t.time()
 #------------------------------------------------------------------------------
 
 ramp = []
@@ -30,6 +36,7 @@ for filename in filenames:
     data = np.reshape(data, (20, 128))
     for i in range(20):
         ants.append(data[i, :])
+    f.close()
         
 
 ants = np.swapaxes(np.array(ants), 0, 1)
@@ -40,11 +47,12 @@ for ant in ants[:20]:
     # ant = ant / np.average(ant)
     # ant = ant / np.max(ant)
     # dant = np.diff(ant)
-    # plt.plot(time, ant, label = f"antenna #{i}")
+    plt.plot(time, ant, label = f"antenna #{i}")
     # plt.plot(time[:-1], dant, label = f"antenna #{i}")
-    plt.scatter(time[:-2], dant, label = f"antenna #{i}")
+    # plt.scatter(time[:-2], dant, label = f"antenna #{i}")
     i += 1
 
+print(f'time = {t.time - t1}')
 textsize = 16
     
 plt.title(f"RPC+LPC {date}, freq = {freq} MHz", size = textsize)

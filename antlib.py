@@ -16,7 +16,7 @@ def print_keys(filename : "str", i : 'int' = 1):
         Number of table's header. The default is 1.
     '''
     
-    with fits.open(filename, memmap=True) as f:
+    with fits.open(filename, memmap = True) as f:
         f.verify('silentfix')
         for key in f[i].header:
             print(f"{key} - {f[i].header[key]}")
@@ -36,7 +36,7 @@ def get_data_for_freq(filename : "str", frequency : 'int' = 0):
         Index of the frequency. The default is 0.
 
     '''
-    with fits.open(filename, memmap=True) as f:
+    with fits.open(filename, memmap = True) as f:
         f.verify('silentfix')
         ants = f[1].data[frequency]["AMP_RCP"] + f[1].data[0]["AMP_LCP"]
         freq = f[1].data[frequency]["FREQUENCY"]

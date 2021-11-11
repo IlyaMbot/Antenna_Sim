@@ -42,6 +42,9 @@ time = np.reshape(np.array(time), (len(filenames) * 20 ))
 
 print(f'Time = {t.time() - t1}')
 
+
+
+
 #plotting----------------------------------------------------------------------
 
 
@@ -51,7 +54,7 @@ textsize = 16
 
 k=1
 
-for ant in ants[1:2]:
+for ant in ants:
     t1 = t.time()
     dant = np.diff(ant)
 
@@ -73,7 +76,6 @@ for ant in ants[1:2]:
     # plt.savefig(f'./pictures/{date}-antenna #{k}.png', transparent=False, dpi=100, bbox_inches="tight")
     # plt.savefig(f'./pictures/{date}-inegral.png', transparent=False, dpi=500, bbox_inches="tight")
     plt.show()
-    plt.close()
     print(f'Time_saving = {t.time() - t1}')
     k += 1
 

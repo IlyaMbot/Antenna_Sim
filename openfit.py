@@ -64,20 +64,3 @@ plt.title(f"RPC+LPC {date}, freq = {freq} MHz", size = textsize)
 plt.show()
 
 #------------------------------------------------------------------------------
-
-
-'''
-for key in f[0].header:
-    print(f"{key} - {f[0].header[key]}")
-print("***")
-'''
-'''
-#freqs = [data[i][0] for i in range(len(data))]
-
-data = f[1].data[0]["AMP_RCP"]
-
-freq = data["FREQUENCY"]
-
-ramps = data["AMP_RCP"]
-lamps = data["AMP_LCP"]
-'''

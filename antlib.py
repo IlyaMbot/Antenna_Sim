@@ -50,7 +50,7 @@ def get_data_for_freq(filename : "str", frequency : 'int' = 0):
 
 def normalize_d(data):
     '''
-    Data normalization function.
+    data normalization function.
     Puts all values in range from 0(min) to 1(max).
     '''
     dmax = np.max(data)
@@ -85,12 +85,12 @@ def save_fits_flux(flux: "numpy.ndarray", date: "str", foldname : "str" = 'folde
     hdu = fits.BinTableHDU.from_columns([
         fits.Column(name = 'DATA', format=f'{dimtime}K', dim = '(dimant, dimtime)', array = flux)
         ])
-    hdu.writeto(f'./{foldname}/R+L_AMP_{date}.fits', overwrite = True)
-    print(f'R+L_AMP_{date}.fits is saved')
+    hdu.writeto(f'./{foldname}/{date}_DATA_R+L_AMP.fits', overwrite = True)
+    print(f'{date}_DATA_R+L_AMP.fits is saved')
 
 #-----------------------------------------------------------------------------
 
-def save_fits_time(time: "numpy.ndarray", date: "str", foldname : "str" = 'folder_name',):
+def save_fits_time(time: "numpy.ndarray", date: "str", foldname : "str" = 'folder_name'):
     '''
     Save fits file of the time with path ./folder_name/ .
 
@@ -113,28 +113,60 @@ def save_fits_time(time: "numpy.ndarray", date: "str", foldname : "str" = 'folde
     hdu = fits.BinTableHDU.from_columns([
         fits.Column(name = 'TIME', format='D', array = time)
         ])
-    hdu.writeto(f'./{foldname}/TIME_{date}.fits', overwrite = True)
-    print(f'TIME_{date}.fits is saved')
+    hdu.writeto(f'./{foldname}/{date}_TIME.fits', overwrite = True)
+    print(f'{date}_TIME.fits is saved')
 
-def remove_out_of_phase(data: "numpy.ndarray", threshold : "float" = 1.0):
+#-----------------------------------------------------------------------------
+
+def remove_out_of_phase(arrays : "numpy.ndarray", threshold : "float" = 1.0):
     '''
     Remove all out of phase values and make continious (trend-like) data.
 
     Parameters
     ----------
-    data : "numpy.ndarray"
+    arr : "numpy.ndarray"
 
     threshold : "float", optional
          The default is 1.0.
     '''
+    for arr in arrays:
 
-    diffdata = np.diff(data)
+        diffdata = np.diff(arr)
 
-    stops = np.argwhere(abs(diffdata) >= np.max(abs(diffdata)) * threshold)
-    stops = np.reshape(stops , (len(stops)))
+        stops = np.argwhere(abs(diffdata) >= np.max(abs(diffdata)) * threshold)
+        stops = np.reshape(stops , (len(stops)))
 
-    for i in range(len(stops) - 1):
-        data[stops[i] + 1 : stops[i + 1] + 1 ] -= data[stops[i] + 1] - data[stops[i]]
-    data[stops[-1] + 1 : ] -= data[stops[-1] + 1] - data[stops[-1]]
+        for i in range(len(stops) - 1):
+            arr[stops[i] + 1 : stops[i + 1] + 1 ] -= arr[stops[i] + 1] - arr[stops[i]]
+        arr[stops[-1] + 1 : ] -= arr[stops[-1] + 1] - arr[stops[-1]]
 
-    return(data)
+    return(arrays)
+
+#-----------------------------------------------------------------------------
+
+def raise_graph(arr : "numpy.ndarray"):
+
+    for i in range(len(arr)):
+        m = np.min(arr[i])
+
+        if( m < 0 ):
+            arr[i] += abs(m)
+
+    return(arr)
+
+#-----------------------------------------------------------------------------
+'''
+def save_fits_all(time: "numpy.ndarray", date: "str", foldname : "str" = 'folder_name'):
+
+    try:
+        os.mkdir(f'./{foldname}')
+        print(f"{foldname} is created")
+    except OSError:
+        pass
+
+    hdu = fits.BinTableHDU.from_columns([
+        fits.Column(name = 'TIME', format='D', array = time)
+        ])
+    hdu.writeto(f'./{foldname}/{date}_TIME.fits', overwrite = True)
+    print(f'{date}_TIME.fits is saved')
+'''

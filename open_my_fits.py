@@ -14,9 +14,10 @@ foldname = 'integral_profiles'
 
 #------------------------------------------------------------------------------
 
-time = np.arange(10, 36300, 5)
+l = 1
 
-integral = np.zeros_like(time[:-1], dtype=('float64'))
+all_datas = []
+all_times = []
 
 for filename in filenames:
     date = filename.split('/')[-1][0:8]
@@ -24,55 +25,42 @@ for filename in filenames:
 
     with fits.open(filename, memmap = True) as f:
         f.verify('silentfix')
-        timedata = f[0].data[0]
-        data = f[0].data
+        all_times.append(f[0].data[0])
+        all_datas.append(f[0].data)
 
+for l in range(1,129):
+    res = []
+    time_r = np.arange(10, 36300, 5)
 
-    data = antlib.remove_out_of_phase(data, 0.01)
+    for i in range(len(all_datas)):
+        all_datas[i][l] = antlib.remove_out_of_phase(all_datas[i][l], 0.05)
+        res.append(antlib.make_regulare(all_datas[i][l], all_times[i], time_r))
 
-    k = 0
-    ant = []
+    res = np.array(res)
+    aver = np.sum(res, axis = 0) / (res.shape[0])
+    aver = aver / np.average(aver)
 
-    #bin-counting--------------------------------------------------------------
+    foldname = "for_each_antenna"
 
-    for i in range( len( time ) - 1 ):
-        databin = []
-        for j in np.arange(k, len(timedata) - 1):
-            if( timedata[j] < time[i + 1] ):
-                databin.append( data[j] )
-            else:
-                k = j
-                break
+    try:
+        os.mkdir( f"./{foldname}" )
+        print( f"{foldname} is created" )
+    except OSError:
+        pass
 
-        if databin == []:
-            databin = data[0]
+    textsize = 16
+    plt.figure()
 
-        ant.append( np.average(databin) )
+    for i in range(len(res)):
+        # plt.plot(all_times[i], all_datas[i][l])
+        # plt.plot(time_r[:-1], res[i])
+        plt.plot(time_r[:-1], aver)
+    plt.ylim(0, 2)
 
-    #--------------------------------------------------------------------------
+    plt.title(f"RPC+LPC {date}, freq = {freq} MHz, antenna = {l}", size = textsize)
 
-    integral += np.array(ant)
-
-integral = integral / len(filenames)
-time = time[:-1]
-
-
-plt.figure()
-plt.plot(time, integral)
-plt.axis([time[0] - 500, time[-1] + 500, 0, np.max(integral) * 1.1 ])
-plt.show()
-
-
-'''
-textsize = 16
-plt.figure()
-plt.plot(time, data)
-plt.title(f"RPC+LPC {date}, freq = {freq} MHz, antenna = {l}", size = textsize)
-
-# plt.title(f"Integral flux RPC+LPC {date}, freq = {freq / 10 ** 6} MHz", size = textsize)
-plt.tight_layout()
-plt.legend(fontsize = textsize * 2 / 3)
-# plt.savefig(f'./{foldname}/{date}-antenna #{i + 1}.png', transparent=False, dpi=200, bbox_inches="tight")
-plt.savefig(f'./threshold/threshold_levels_ant{l}.png', transparent=False, dpi=500, bbox_inches="tight")
-plt.show()
-'''
+    plt.title(f"Integral flux RPC+LPC {date}, freq = {freq / 10 ** 6} MHz", size = textsize)
+    plt.tight_layout()
+    # plt.legend(fontsize = textsize * 2 / 3)
+    plt.savefig(f'./{foldname}/antenna #{l}.png', transparent=False, dpi=300, bbox_inches="tight")
+    # plt.show()

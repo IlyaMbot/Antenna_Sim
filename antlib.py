@@ -2,6 +2,7 @@ from astropy.io import fits
 import numpy as np
 import os
 
+
 #-----------------------------------------------------------------------------
 
 def print_keys(filename : str, i : int = 1):
@@ -200,39 +201,60 @@ def remove_out_of_phase(arrays : np.ndarray, threshold : float = 1.0) -> np.ndar
 
 #-----------------------------------------------------------------------------
 
-def raise_graph(arr : np.ndarray) -> np.ndarray:
+def raise_negative_graph(arr : np.ndarray) -> np.ndarray:
 
     for i in range(len(arr)):
         m = np.min(arr[i])
 
         if( m < 0 ):
-            arr[i] += abs(m)
+            arr[i] -= m
 
     return(arr)
 
 #-----------------------------------------------------------------------------
 
-def make_regulare(dataraw, timeraw, begin = 10, end = 36300, step = 5):
+def make_regulare(data, time, time_r):
 
-    time = np.arange(begin, end, step)
-
+    data_r = []
     k = 0
-    data = []
 
-    for i in range( time.shape[0] - 1 ):
+    for i in range( len( time_r ) - 1 ):
         databin = []
 
-        for j in np.arange(k, len(timeraw) - 1):
-            if( timeraw[j] < time[i + 1] ):
-                for dat in dataraw:
-                    databin.append( dataraw[j] )
+        for j in np.arange(k, len(time) - 1):
+            if( time[j] < time_r[i + 1] ):
+                databin.append( data[j] )
             else:
                 k = j
                 break
 
         if databin == []:
-            databin = data[0]
+            databin = data[j - 1]
 
-        data.append( np.average( databin ) )
+        data_r.append( np.average(databin) )
 
-    return(data, time)
+    return(data_r)
+
+'''
+import matplotlib.pyplot as plt
+
+l = 1000
+step = 5
+
+datas = np.array([
+    [ np.sin(i* np.pi/100)*300 + abs(np.random.rand() * 300) + 6000 for i in range(l) ],
+    [ np.sin(i* np.pi/100)*300 + abs(np.random.rand() * 300) + 6000 for i in range(l) ],
+    [ np.sin(i* np.pi/100)*300 + abs(np.random.rand() * 300) + 6000 for i in range(l) ],
+    [ np.sin(i* np.pi/100)*300 + abs(np.random.rand() * 300) + 6000 for i in range(l) ],
+    [ np.sin(i* np.pi/100)*300 + abs(np.random.rand() * 300) + 6000 for i in range(l) ]])
+
+time = np.array(sorted([ i + np.random.rand()*6 for i in range(0,l)]))
+
+result, time2 = make_regulare(datas, time, end = time.max(), step = 10)
+
+plt.figure()
+for data in datas:
+    plt.plot(time, data)
+plt.plot(time2, result, linewidth = 5)
+plt.show()
+'''

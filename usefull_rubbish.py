@@ -41,6 +41,7 @@ plt.axis([time[0] - 500, time[-1] + 500, 0, np.max(ant) * 1.1 ])
 plt.show()
 '''
 
+
 '''
 for i in range(len(data1)):
 
@@ -63,6 +64,33 @@ for i in range(len(data1)):
     # plt.savefig(f'./pictures/{date}-inegral.png', transparent=False, dpi=500, bbox_inches="tight")
     # plt.show()
     plt.close()
+
+'''
+#------------------------------------------------------------------------------
+
+'''
+ k = 0
+ ant = []
+
+ #bin-counting-for-one-antenna----------------------------------------------
+
+
+ for i in range( len( time ) - 1 ):
+     databin = []
+
+     for j in np.arange(k, len(timedata) - 1):
+         if( timedata[j] < time[i + 1] ):
+             databin.append( data[j] )
+         else:
+             k = j
+             break
+
+     if databin == []:
+         databin = data[j - 1]
+
+     ant.append( np.average(databin) )
+
+ #--------------------------------------------------------------------------
 
 '''
 

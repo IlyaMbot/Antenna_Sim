@@ -5,16 +5,16 @@ import matplotlib.pyplot as plt
 #paths-------------------------------------------------------------------------
 
 # on server
-# filenames = glob.glob('/mnt/badary/SRH/SRH0306/20210603/*.fit')
+folders = glob.glob('/mnt/badary/SRH/SRH0306/202108*') 
 
 # on PC
-folders = glob.glob("./data/*")
+#folders = glob.glob("./data/*")
 folders = sorted(folders, key=os.path.basename)
 
 total = []
 times = []
 
-for folder in folders[0:1]:
+for folder in folders[5:-1]:
 
     filenames = glob.glob(folder + '/*.fit')
     filenames = sorted(filenames, key=os.path.basename)
@@ -26,7 +26,7 @@ for folder in folders[0:1]:
     ants, time, freq = antlib.get_data_for_freq(filenames)
     data = np.append( np.array([time]), ants, axis = 0)
 
-    antlib.save_fits_raw( data, date, foldname = 'myfits', add = '_all' )
+    antlib.save_fits_raw( data, date, foldname = 'data', add = '_all' )
     # antlib.save_fits_raw( time, date, foldname = 'myfits', add = '_time' )
 
 

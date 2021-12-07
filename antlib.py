@@ -2,6 +2,14 @@ from astropy.io import fits
 import numpy as np
 import os
 
+#-----------------------------------------------------------------------------
+
+def makedir(foldname):
+    try:
+        os.mkdir(f'./{foldname}')
+        print(f"{foldname} is created")
+    except OSError:
+        pass
 
 #-----------------------------------------------------------------------------
 
@@ -18,7 +26,7 @@ def print_keys(filename : str, i : int = 1):
         Number of table's header. The default is 1.
     '''
 
-    with fits.open(filename, memmap = True) as f:
+    with fits.open(filename, memmap = False) as f:
         f.verify('silentfix')
         print(f'***\n{filename} is opened')
         for key in f[i].header:
@@ -44,8 +52,8 @@ def get_data_for_freq(filenames : str, frequency : int = 0) -> [np.ndarray, np.n
     time = []
 
     for filename in filenames:
-
-        with fits.open( filename, memmap = True ) as f:
+        print(f"{filename} is opened")
+        with fits.open( filename, memmap = False ) as f:
 
             f.verify('silentfix')
 
@@ -58,7 +66,7 @@ def get_data_for_freq(filenames : str, frequency : int = 0) -> [np.ndarray, np.n
 
     amps    = np.reshape( np.array(amps), (len(filenames) * 20, 128) )
     amps    = np.swapaxes( amps, 0, 1)
-    time   = np.reshape( np.array(time), (len(filenames) * 20 ) )
+    time    = np.reshape( np.array(time), (len(filenames) * 20 ) )
 
     return(amps, time, freq)
 
@@ -197,7 +205,7 @@ def remove_out_of_phase(arrays : np.ndarray, threshold : float = 1.0) -> np.ndar
 
         arr[outs[-1] + 1 : ] -= arr[outs[-1] + 1] - arr[outs[-1]]
 
-    return(arrays[0])
+    return(arrays)
 
 #-----------------------------------------------------------------------------
 

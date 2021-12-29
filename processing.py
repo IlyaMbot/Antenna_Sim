@@ -14,7 +14,7 @@ folders = sorted(folders, key=os.path.basename)
 total = []
 times = []
 
-for folder in folders[5:-1]:
+for folder in folders:
 
     filenames = glob.glob(folder + '/*.fit')
     filenames = sorted(filenames, key=os.path.basename)
@@ -22,11 +22,10 @@ for folder in folders[5:-1]:
 
     date = filenames[0].split('/')[-1][4:-11]
     print(date)
-
-    ants, time, freq = antlib.get_data_for_freq(filenames)
+    ants, time, freq = antlib.get_data_for_freq(filenames, 5)
     data = np.append( np.array([time]), ants, axis = 0)
 
-    antlib.save_fits_raw( data, date, foldname = 'data', add = '_all' )
+    antlib.save_fits_raw( data, date, foldname = 'data', add = f'_freq{ freq / 10 ** 5 }' )
     # antlib.save_fits_raw( time, date, foldname = 'myfits', add = '_time' )
 
 

@@ -6,13 +6,13 @@ import time as t
 
 plt.rcParams.update({'figure.max_open_warning': 0})
 
-filenames = glob.glob('./data/*.fits')
+filenames = glob.glob('./data/*0.fits')
 #filenames = glob.glob('./myfits/202108*.fits')
 filenames = sorted(filenames, key=os.path.basename)
 
 
-freq = 2.8
-foldname = 'integral_profiles'
+freq = 5.6
+foldname = 'integral_profiles56'
 
 #------------------------------------------------------------------------------
 
@@ -31,24 +31,21 @@ for filename in filenames:
         all_datas.append(f[0].data)
 
 for l in range(1,129):
-    res = []
+    avers = []
     time_r = np.arange(10, 36300, 5)
 
     t1 = t.time()
     
     for i in range(len(all_datas)):
 		
-        #t1 = t.time()
         all_datas[i][l] = antlib.remove_out_of_phase(all_datas[i][l], 0.1)
-        #print(f'removing = {t.time() - t1}')
         
-        #t1 = t.time()
-        res.append(antlib.make_regulare(all_datas[i][l], all_times[i], time_r))
-        #print(f'regulating = {t.time() - t1}')
-    
-    res = np.array(res)
-    aver = np.sum(res, axis = 0) / (res.shape[0])
-    aver = aver / np.average(aver)
+        a = antlib.make_regulare(all_datas[i][l], all_times[i], time_r)
+
+        avers.append(np.array(a) / np.mean(a))
+        
+    avers = np.array(avers)
+    aver = np.average(res, axis = 0)
 
 
     try:
@@ -70,12 +67,12 @@ for l in range(1,129):
 
     plt.title(f"RPC+LPC {date}, freq = {freq} MHz, antenna = {l}", size = textsize)
 
-    #plt.title(f"Integral flux RPC+LPC {date}, freq = {freq / 10 ** 6} MHz", size = textsize)
+    #plt.title(f"Integral flux RPC+LPC {date}, freq = {freq} MHz", size = textsize)
     plt.xlabel("Time, s", size = 16)
     plt.ylabel("Flux, [average val.]", size = 16)
     plt.tight_layout()
     # plt.legend(fontsize = textsize * 2 / 3)
     plt.savefig(f'./{foldname}/antenna_{l}.png', transparent=False, dpi=300, bbox_inches="tight")
-    # plt.show()
+    
     print(f'one ant = {t.time() - t1}')
     

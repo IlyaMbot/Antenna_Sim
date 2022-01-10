@@ -1,6 +1,7 @@
 from astropy.io import fits
 import numpy as np
 import os
+import matplotlib.pyplot as plt
 
 #-----------------------------------------------------------------------------
 
@@ -242,6 +243,22 @@ def make_regulare(data, time, time_r):
         data_r.append( np.average(databin) )
 
     return(data_r)
+
+#------------------------------------------------------------------------------
+
+def simple_plot(time, data, showall = True):
+    if( showall == False ):
+        for d in data:
+            plt.figure()
+            plt.plot(time, d)
+        return()
+
+    plt.figure()
+    for d in data:
+        plt.plot(time, d)
+
+#------------------------------------------------------------------------------
+
 
 '''
 import matplotlib.pyplot as plt

@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-import time
+import time, antlib
 from numpy.fft import fft2, fftshift
 
 
@@ -19,12 +18,12 @@ def plotting(x, y = None):
 
     fig = plt.figure() 
     ax = fig.add_subplot(111)
-    ax.set_title("Flux-agnle dependancy", size = 20)
+    ax.set_title("Flux-agnle dependancy", size = 20)    
     try:
-    	plt.plot(x,y)
+        plt.plot(x,y)
     except:
-    	print("xdata != ydata")
-    	plt.plot(x)
+        print("xdata != ydata")
+        plt.plot(x)
     ax.set_xlabel("Angle, [deg]", size = 16)
     ax.set_ylabel("Intencity", size = 16)
     plt.show()
@@ -53,8 +52,8 @@ def plotting_image(image, R = 1 , D = 1, save = False, grid_on = False, title = 
     ax.set_ylabel("Angle, [deg]", size = 16)
     ax.set_xlabel("Angle, [deg]", size = 16)
     if(grid_on == True):
-    	ax.grid(True)
-    
+        ax.grid(True)
+
     if(save == True):
         plt.savefig(f'./The_model_{name}r.png', transparent = False, dpi = 500, bbox_inches = "tight")
         
@@ -67,7 +66,7 @@ lsize = 2 ** 8
 
 c = 3 * 10 ** 8 # in m/s
 D = 3 # in m 
-freq_base = 3 * 10 ** 9 # in Hz
+freq_base = 5.6 * 10 ** 9 # in Hz
 
 st = 1
 
@@ -134,3 +133,4 @@ plotting_image(antenna, R = R, grid_on = True, title = "Antenna corr")
 plotting_image(visibilityf, R = R0 , grid_on = True, title = "Visibility func")
 plotting_image(sun_matrix, R = R0, grid_on = True, title = "The Sun")
 plotting(traj, flux)
+np.save("model", [traj, flux])

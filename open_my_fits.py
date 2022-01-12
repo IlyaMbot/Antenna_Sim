@@ -6,8 +6,8 @@ import time as t
 
 plt.rcParams.update({'figure.max_open_warning': 0})
 
-filenames = glob.glob('./data/*0.fits')
-#filenames = glob.glob('./myfits/202108*.fits')
+# filenames = glob.glob('./data/*0.fits')
+filenames = glob.glob('./data/202108/*0.fits')
 filenames = sorted(filenames, key=os.path.basename)
 
 
@@ -38,16 +38,14 @@ for l in range(1,129):
 
     for i in range(len(all_datas)):
 
-        all_datas[i][l] = antlib.remove_out_of_phase(all_datas[i][l], 0.1)
         a = antlib.make_regulare(all_datas[i][l], all_times[i], time_r)
-        avers.append(np.array(a) / np.mean(a))
+        avers.append(np.array(a))
 
     avers = np.array(avers)
-    aver = np.average(avers, axis = 0)
+    aver = np.sum(avers, axis = 0)
+    aver = antlib.remove_out_of_phase(aver, 0.01)[0]
 
     antlib.makedir(foldname)
-
-    t1 = t.time()
 
     textsize = 16
     plt.figure()
@@ -57,7 +55,7 @@ for l in range(1,129):
     if view == 0:
 
         plt.plot(time_r[:-1], aver)
-        plt.ylim(0, 2)
+        plt.ylim(0, 2 * np.mean(aver))
 
         plt.title(f"RPC+LPC {date}, freq = {freq} MHz, antenna = {l}", size = textsize)
         plt.xlabel("Time, s", size = 16)
@@ -69,7 +67,7 @@ for l in range(1,129):
         for i in range(len(avers)):
             plt.plot(time_r[:-1], avers[i]/ np.mean(avers[i]), color = 'blue')
         plt.plot(time_r[:-1], aver, color = 'red', linewidth = 5)
-        plt.ylim(0, 2)
+        plt.ylim(0, 2 * np.mean(aver))
 
         plt.title(f"RPC+LPC {date}, freq = {freq} MHz, antenna = {l}", size = textsize)
         plt.xlabel("Time, s", size = 16)

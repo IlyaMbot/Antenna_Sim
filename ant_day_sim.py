@@ -5,10 +5,11 @@ from astropy.io import fits
 import astropy.units as u
 from astropy.coordinates import get_sun, EarthLocation, AltAz
 import matplotlib.pyplot as plt
+from numpy.core.numeric import zeros_like
 import antlib
 
 
-#------------------------------------------------------------------------------
+#functions----------------------------------------------------------------------
 
 def get_hms(timeinsec):
 
@@ -18,16 +19,23 @@ def get_hms(timeinsec):
 
     return([hours, minutes, seconds])
 
+response = np.load('model56.npy')
+
+def find_flux(value):
+    global response
+    idx = (np.abs(response[0] - value)).argmin()
+    return( response[1, idx] )
+
 #data--------------------------------------------------------------------------
 
 path = './aver*/*.fits'
 
 filenames = antlib.get_filenames(path)
 
-print(filenames)
 data_ants = []
+num = 23
 
-for filename in [filenames[11],filenames[12],filenames[13]]:
+for filename in [filenames[num]]:
     with fits.open(filename, memmap = True) as f:
                 f.verify('silentfix')
                 time_ant = f[0].data[0]
@@ -56,12 +64,13 @@ az = az.degree
 alt = alt.degree
 
 #ant-params--------------------------------------------------------------------
+
 a0 = 90 - 51.759
 b0 = 90 - 102.217
-print(a0, b0)
-alpha = a0 
-beta = b0 
 
+alpha = a0
+beta = b0 + 0.1
+print(alpha, beta)
 loc_ant = EarthLocation(lat = (90 - alpha) * u.deg, lon = (90 - beta) * u.deg )
 altaz_ant = AltAz(location = loc_ant, obstime = time)
 az2  = get_sun(time).transform_to(altaz_ant).az 
@@ -72,11 +81,30 @@ alt2 = alt2.degree
 
 #------------------------------------------------------------------------------
 
+flux_mod = np.zeros_like(alt)
+
+for i in range(len(alt)):
+    flux_mod[i] = find_flux(abs(alt2[i] - alt[i]))
+#------------------------------------------------------------------------------
+
+
 plt.figure()
-plt.plot(time_ant[:-1], alt - alt)
-for data_ant in data_ants:
-    plt.plot(time_ant[:-1], data_ant[:-1] )
+plt.subplot(121)
+plt.title(f"antenna {num + 1} simulation, $\\alpha$ = {alpha}, $\\beta$ = {beta}", size = 16)
+plt.ylim(-2,2)
+plt.plot(time_ant[:-1], np.zeros_like(alt), color = 'blue', linewidth = 4)
+plt.plot(time_ant[:-1], alt2 - alt, color = 'orange', linewidth = 4)
+plt.subplot(122)
+plt.ylim(0,1.1)
+plt.plot(time_ant[:-1], flux_mod)
+plt.plot(time_ant[:-1], data_ant[:-1])
+'''
+i=1
+for data_ant in data_ants: 
+    plt.plot(time_ant[:-1], data_ant[:-1], color = (i/len(data_ants), 0, 0) )
+    i+=1
 # plt.plot(time_ant[:-1], data_ant[:-1] * alt)
+'''
 plt.show()
 
 #------------------------------------------------------------------------------

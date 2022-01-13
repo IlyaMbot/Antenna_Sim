@@ -1,6 +1,6 @@
 from astropy.io import fits
 import numpy as np
-import os
+import os, glob
 import matplotlib.pyplot as plt
 
 #-----------------------------------------------------------------------------
@@ -166,6 +166,8 @@ def save_fits_raw(arr      : np.ndarray,
                   add      : str = ""
                   ) -> None:
 
+    arr = np.array(arr)
+
     filename = f"{date}_flux{add}.fits"
 
     try:
@@ -246,19 +248,71 @@ def make_regulare(data, time, time_r):
 
 #------------------------------------------------------------------------------
 
-def simple_plot(time, data, showall = True):
+def simple_plot(time, data, showall = False):
+
     if( showall == False ):
         for d in data:
             plt.figure()
+            plt.ylim(0, 2 * np.mean(d))
             plt.plot(time, d)
-        return()
-
-    plt.figure()
-    for d in data:
-        plt.plot(time, d)
+            plt.show()
+    else:
+        plt.figure()
+        plt.ylim( 0, 1.01 * np.max(data) )
+        for d in data:
+            plt.plot(time, d)
+        plt.show()
 
 #------------------------------------------------------------------------------
 
+def get_filenames(path) -> list:
+
+    filenames = glob.glob(path)
+    filenames = sorted(filenames, key=os.path.basename)
+    
+    return(filenames)
+
+
+'''
+def plot_average(time = None, data , view: int = 0):
+    return(data)
+    """
+
+    Parameters
+    ----------
+    
+    view : int
+        The default is 0 
+            options: 
+            0 = only average
+            1 = all antenas + overplot average
+    """
+
+    view = 0
+
+    if view == 0:
+        
+        plt.plot(time_r[:-1], aver)
+        plt.ylim(0, 2 * np.mean(aver))
+
+        plt.title(f"RPC+LPC {date}, freq = {freq} MHz, antenna = {l}", size = textsize)
+        plt.xlabel("Time, s", size = 16)
+        plt.ylabel("Flux, [average val.]", size = 16)
+        plt.tight_layout()
+        plt.savefig(f'./{foldname}/antenna_{l}.png', transparent=False, dpi=300, bbox_inches="tight")
+
+    elif view == 1:
+        for i in range(len(avers)):
+            plt.plot(time_r[:-1], avers[i]/ np.mean(avers[i]), color = 'blue')
+        plt.plot(time_r[:-1], aver, color = 'red', linewidth = 5)
+        plt.ylim(0, 2 * np.mean(aver))
+
+        plt.title(f"RPC+LPC {date}, freq = {freq} MHz, antenna = {l}", size = textsize)
+        plt.xlabel("Time, s", size = 16)
+        plt.ylabel("Flux, [average val.]", size = 16)
+        plt.tight_layout()
+        plt.savefig(f'./{foldname}/antenna_{l}_all_days.png', transparent=False, dpi=300, bbox_inches="tight")
+'''
 
 '''
 import matplotlib.pyplot as plt

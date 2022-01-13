@@ -46,7 +46,10 @@ for l in range(1,129):
     aver = antlib.remove_out_of_phase(aver, 0.01)[0]
 
     antlib.makedir(foldname)
+    antlib.makedir("aver_data_ants")
 
+    antlib.save_fits_raw([time_r[:-1], aver], date, "aver_data_ants", add = f"{l}".zfill(3) )
+    '''
     textsize = 16
     plt.figure()
 
@@ -76,3 +79,4 @@ for l in range(1,129):
         plt.savefig(f'./{foldname}/antenna_{l}_all_days.png', transparent=False, dpi=300, bbox_inches="tight")
 
     print(f'one ant = {t.time() - t1}')
+    '''

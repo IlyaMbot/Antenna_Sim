@@ -110,12 +110,7 @@ def save_fits_flux(flux     : np.ndarray,
     dimant  = flux.shape[0]
     dimtime = flux.shape[1]
 
-    try:
-        os.mkdir(f'./{foldname}')
-        print(f"{foldname} is created")
-    except OSError:
-        pass
-
+    makedir(foldname)
 
     hdu = fits.BinTableHDU.from_columns([
         fits.Column(name = 'DATA', format=f'{dimtime}K', dim = f'({dimant}, {dimtime})', array = flux)
@@ -144,11 +139,7 @@ def save_fits_time(time     : np.ndarray,
         The default is 'folder_name'.
     '''
 
-    try:
-        os.mkdir(f'./{foldname}')
-        print(f"{foldname} is created")
-    except OSError:
-        pass
+    makedir(foldname)
 
     filename = f"{date}_TIME{add}.fits"
 
@@ -170,11 +161,7 @@ def save_fits_raw(arr      : np.ndarray,
 
     filename = f"{date}_flux{add}.fits"
 
-    try:
-        os.mkdir( f"./{foldname}" )
-        print( f"{foldname} is created" )
-    except OSError:
-        pass
+    makedir(foldname)
 
     hdu = fits.PrimaryHDU(arr)
     hdu.writeto(f'./{foldname}/{filename}', overwrite = True)

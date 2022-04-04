@@ -4,11 +4,10 @@ import matplotlib.pyplot as plt
 import os, glob, antlib
 import time as t
 
-filenames = glob.glob('./to_send/*.fits')
+filenames = glob.glob('./result_*/*.fits')
 filenames = sorted(filenames, key=os.path.basename)
 
-
-data = []
+data = np.array([])
 
 for filename in filenames:
     date = filename.split('/')[-1][0:8]
@@ -16,8 +15,13 @@ for filename in filenames:
 
     with fits.open(filename, memmap = True) as f:
         f.verify('silentfix')
-        data.append(f[0].data)
+        data = f[0].data
 
-for d in data[:-1]:
-    plt.plot(data[-1], d/ np.max(d))
+time = data[0]
+data = antlib.remove_out_of_phase(data[1:], 1)
+
+data = np.sum(data, 0)
+
+plt.figure()
+plt.plot(time, data)
 plt.show()

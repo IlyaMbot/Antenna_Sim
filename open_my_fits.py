@@ -7,7 +7,9 @@ import time as t
 plt.rcParams.update({'figure.max_open_warning': 0})
 
 # filenames = glob.glob('./data/*0.fits')
-filenames = glob.glob('./data/202108/*0.fits')
+# filenames = glob.glob('./data/202108/*0.fits')
+filenames = glob.glob('./result_*/*.fits')
+
 filenames = sorted(filenames, key=os.path.basename)
 
 

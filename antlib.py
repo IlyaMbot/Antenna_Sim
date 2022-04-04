@@ -5,16 +5,16 @@ import matplotlib.pyplot as plt
 
 #-----------------------------------------------------------------------------
 
-def makedir(foldname):
+def makedir(foldname) -> None:
     try:
-        os.mkdir(f'./{foldname}')
-        print(f"{foldname} is created")
+        os.mkdir( f'./{foldname}' )
+        print( f"{foldname} is created" )
     except OSError:
         pass
 
 #-----------------------------------------------------------------------------
 
-def print_keys(filename : str, i : int = 1):
+def print_keys(filename : str, i : int = 1) -> None:
 
     '''
     Function to print keys from header of the FITS file.
@@ -27,11 +27,11 @@ def print_keys(filename : str, i : int = 1):
         Number of table's header. The default is 1.
     '''
 
-    with fits.open(filename, memmap = False) as f:
-        f.verify('silentfix')
-        print(f'***\n{filename} is opened')
+    with fits.open( filename, memmap = False ) as f:
+        f.verify( 'silentfix' )
+        print( f'***\n{filename} is opened' )
         for key in f[i].header:
-            print(f"{key} - {f[i].header[key]}")
+            print( f"{key} - {f[i].header[key]}" )
         print("***")
 
 #-----------------------------------------------------------------------------
@@ -49,8 +49,8 @@ def get_data_for_freq(filenames : str, frequency : int = 0) -> [np.ndarray, np.n
         Index of the frequency. The default is 0.
     '''
 
-    amps = []
-    time = []
+    amps = np.array([])
+    time = np.array([])
 
     for filename in filenames:
         print(f"{filename} is opened")
@@ -62,12 +62,15 @@ def get_data_for_freq(filenames : str, frequency : int = 0) -> [np.ndarray, np.n
             freq    = f[1].data[ frequency ][ "FREQUENCY" ]
             time20  = f[1].data[ frequency ][ "TIME" ]
 
-        time.append( time20 )
-        amps.append( np.reshape( amp, (20, 128) ) )
+        time = np.append(time, time20)
+        amps = np.append(amps, np.reshape( amp, (20, 128) ) )
 
-    amps    = np.reshape( np.array(amps), (len(filenames) * 20, 128) )
-    amps    = np.swapaxes( amps, 0, 1)
-    time    = np.reshape( np.array(time), (len(filenames) * 20 ) )
+    if amps.shape[0] == 0:
+        print("ERROR")
+        return(None, None, None)
+    
+    amps = np.reshape( amps, (len(filenames) * 20, 128 ) ).swapaxes(0, 1)
+    time = np.reshape( time, (len(filenames) * 20 ) )
 
     return(amps, time, freq)
 

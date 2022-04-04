@@ -7,9 +7,8 @@ import glob, os, antlib
 # folders = glob.glob('/mnt/badary/SRH/SRH0306/202108*')
 
 # on PC
-folders = glob.glob("./data/*")
+folders = glob.glob("./data/event_*")
 folders = sorted(folders, key=os.path.basename)
-
 
 total = []
 times = []
@@ -24,4 +23,4 @@ for folder in folders:
     ants, time, freq = antlib.get_data_for_freq(filenames, 0)
     data = np.append( np.array([time]), ants, axis = 0)
 
-    antlib.save_fits_raw( data, date, foldname = 'data', add = f'_freq{ int(freq / 10 ** 5) }' )
+    antlib.save_fits_raw( data, date, foldname = 'result_event', add = f'_freq{ int(freq / 10 ** 5) }' )

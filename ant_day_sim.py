@@ -46,6 +46,12 @@ def find_flux(alt_a : np.ndarray, alt_s : np.ndarray = None) -> np.ndarray:
     
     return(flux)
 
+def rotation(x0, y0, theta):
+    
+    x =   x0 * np.cos(theta) + y0 * np.sin(theta)
+    y = - x0 * np.sin(theta) + y0 * np.cos(theta)
+
+    return(x, y)
 
 #data--------------------------------------------------------------------------
 

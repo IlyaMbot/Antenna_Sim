@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import os, glob, antlib
 import time as t
 
-filenames = glob.glob('./result_*/*.fits')
+filenames = glob.glob('./data/202108/*.fits')
 filenames = sorted(filenames, key=os.path.basename)
 
 data = np.array([])
@@ -18,10 +18,6 @@ for filename in filenames:
         data = f[0].data
 
 time = data[0]
-data = antlib.remove_out_of_phase(data[1:], 1)
+diff = np.average( np.diff(time) )
 
-data = np.sum(data, 0)
-
-plt.figure()
-plt.plot(time, data)
-plt.show()
+print(diff)
